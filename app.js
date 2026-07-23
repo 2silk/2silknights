@@ -277,21 +277,43 @@ document.addEventListener('DOMContentLoaded', () => {
       tocList.appendChild(item);
     });
 
-    // 藏头诗
-    if (acrosticChars.length >= 2) {
-      const acrostic = acrosticChars.join('');
-      const reveal = document.createElement('div');
-      reveal.className = 'acrostic-reveal';
-      reveal.innerHTML = `
-        <div class="acrostic-label">🎯 藏头诗</div>
-        <div class="acrostic-text">${acrostic}</div>
-      `;
-      article.appendChild(reveal);
-    }
-
-    // 番外（放在藏头诗之后）
+    // 番外
     if (extraSections.length) {
       extraSections.forEach(renderBlock);
+    }
+
+    // 齿牙为猾特殊处理：藏头诗在阅读完所有章节后显示在目录中
+    if (work.id === 'fw0' && acrosticChars.length >= 2) {
+      const acrostic = acrosticChars.join('');
+      const tocAcrostic = document.createElement('div');
+      tocAcrostic.className = 'toc-acrostic';
+      tocAcrostic.innerHTML = `
+        <div class="toc-acrostic-label">藏头诗</div>
+        <div class="toc-acrostic-text">${acrostic}</div>
+      `;
+      tocList.appendChild(tocAcrostic);
+
+      // 默认隐藏，阅读完所有章节后显示
+      tocAcrostic.classList.add('hidden');
+
+      const seenChapters = new Set();
+      const chapterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const idx = entry.target.id.replace('ch-', '');
+            seenChapters.add(idx);
+            if (seenChapters.size >= chapters.length) {
+              tocAcrostic.classList.remove('hidden');
+              chapterObserver.disconnect();
+            }
+          }
+        });
+      }, { threshold: 0.1, root: readerScroll });
+
+      chapters.forEach(ch => {
+        const el = document.getElementById(ch.id);
+        if (el) chapterObserver.observe(el);
+      });
     }
 
     // 更新标题
