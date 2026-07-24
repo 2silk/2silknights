@@ -466,6 +466,8 @@ body::before {
   font-size: 24px;
   flex-shrink: 0;
   border: 1px solid var(--border);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-variant-emoji: text;
 }
 
 .card-cover {

@@ -4362,6 +4362,7 @@ const WORKS_DATA = {
       fandom: '大运河原创',
       date: '2024',
       wordCount: 5000,
+      url: 'hehaijinyun/',
       pixelBg: 'wave',
       content: [
         {type:'text', text: '这是一条流了一千四百年的河。'},
