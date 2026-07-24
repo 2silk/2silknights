@@ -223,8 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 渲染章节
     function renderBlock(sec) {
-      // ---------- heading 类型 ----------
-      if (sec.type === 'heading') {
+      // ---------- heading 类型 (兼容 heading / h2 / h3 / h4) ----------
+      if (sec.type === 'heading' || sec.type === 'h2' || sec.type === 'h3' || sec.type === 'h4') {
         const h = document.createElement('h3');
         h.className = 'reader-chapter';
         h.id = `ch-${chapters.length}`;
@@ -234,8 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // ---------- image 类型 ----------
-      if (sec.type === 'image') {
+      // ---------- image 类型 (兼容 image / img) ----------
+      if (sec.type === 'image' || sec.type === 'img') {
         const wrapper = document.createElement('div');
         wrapper.className = 'reader-image-wrapper';
         const img = document.createElement('img');
