@@ -81,11 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
         : `${work.wordCount}字`;
 
       const icons = {
-        star: '✦', moon: '☽', ocean: '≈',
-        crown: '♛', leaf: '✿', fire: '✸', skull: '✠',
-        clock: '⌛', sun: '☉', mask: '◇', food: '♨',
-        dice: '◆', wave: '≈', brain: '◉',
-        wand: '✧', star2: '☆', heart: '♡'
+        star: '†', moon: '◐', ocean: '≋',
+        crown: '♛', leaf: '❦', fire: '❡', skull: '☠',
+        clock: '◷', sun: '☉', mask: '◇', food: '§',
+        dice: '◆', wave: '≋', brain: '◈',
+        wand: '※', star2: '☆', heart: '♥'
       };
       const icon = work.pixelBg && icons[work.pixelBg] ? icons[work.pixelBg] : '◆';
 
