@@ -479,5 +479,184 @@ document.getElementById('h5Back')?.addEventListener('click', () => {
     });
   });
 
+  // ===== 游戏拆解 =====
+  function escapeHtml(value = '') {
+    return String(value).replace(/[&<>"']/g, char => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[char]));
+  }
+
+  function buildGameAnalysisMarkup(article) {
+    const content = Array.isArray(article?.content) ? article.content : [];
+    const headings = [];
+    let html = '';
+    let i = 0;
+    let headingIndex = 0;
+
+    while (i < content.length) {
+      const item = content[i];
+
+      if (item.type === 'img') {
+        const images = [];
+        while (i < content.length && content[i].type === 'img') {
+          images.push(content[i]);
+          i++;
+        }
+
+        let gridClass = 'single';
+        if (images.length === 2) gridClass = 'double';
+        else if (images.length === 3) gridClass = 'triple';
+        else if (images.length >= 4) gridClass = 'quad';
+
+        html += `<div class="ga-img-grid ${gridClass}">`;
+        images.forEach(img => {
+          const caption = img.caption ? `<div class="ga-img-caption">${escapeHtml(img.caption)}</div>` : '';
+          html += `
+            <figure class="ga-img-item">
+              <img src="${escapeHtml(img.src)}" alt="${escapeHtml(img.caption || article.title || '配图')}" loading="lazy">
+              ${caption}
+            </figure>
+          `;
+        });
+        html += `</div>`;
+        continue;
+      }
+
+      if (item.type === 'h2' || item.type === 'h3' || item.type === 'h4') {
+        const tag = item.type;
+        const id = `ga-heading-${headingIndex++}`;
+        headings.push({ id, text: item.text, level: tag });
+        html += `<${tag} class="ga-heading" id="${id}">${escapeHtml(item.text)}</${tag}>`;
+        i++;
+        continue;
+      }
+
+      if (item.type === 'p') {
+        html += `<p class="ga-text">${escapeHtml(item.text)}</p>`;
+      }
+
+      i++;
+    }
+
+    return { html: `<div class="ga-body">${html}</div>`, headings };
+  }
+
+  function openGameAnalysisReader(article) {
+    const articleEl = document.getElementById('readerArticle');
+    const tocList = document.getElementById('readerTocList');
+    const readerScroll = document.getElementById('readerScroll');
+    if (!articleEl || !tocList || !readerScroll) return;
+
+    const tags = Array.isArray(article.tags) ? article.tags : [];
+    const metaType = article.type || '游戏拆解';
+    const metaDate = article.date || '';
+
+    articleEl.innerHTML = `
+      <div class="reader-article-header reader-article-header--analysis">
+        <h1 class="reader-article-title">${escapeHtml(article.title)}</h1>
+        <div class="reader-article-meta">
+          <span>${escapeHtml(metaType)}</span>
+          <span>${escapeHtml(metaDate)}</span>
+        </div>
+        <div class="reader-article-tags">
+          ${tags.map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}
+        </div>
+      </div>
+    `;
+
+    const { html, headings } = buildGameAnalysisMarkup(article);
+    articleEl.insertAdjacentHTML('beforeend', html);
+
+    tocList.innerHTML = '';
+    headings.forEach(heading => {
+      const item = document.createElement('div');
+      const levelClass = heading.level === 'h3'
+        ? ' toc-subitem'
+        : heading.level === 'h4'
+          ? ' toc-subitem toc-subitem-2'
+          : '';
+      item.className = `toc-item${levelClass}`;
+      item.textContent = heading.text;
+      item.addEventListener('click', () => {
+        const el = document.getElementById(heading.id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+      tocList.appendChild(item);
+    });
+
+    document.getElementById('readerTopTitle').textContent = article.title;
+    readerState = { category: 'game-analysis', articleId: article.id, chapters: headings };
+    switchPage('reader');
+    readerScroll.scrollTop = 0;
+  }
+
+  function renderGameAnalysisIndex() {
+    const container = document.getElementById('gameAnalysisGrid');
+    if (!container || typeof GAME_ANALYSIS_ARTICLES === 'undefined') return;
+
+    const articles = Array.isArray(GAME_ANALYSIS_ARTICLES) ? GAME_ANALYSIS_ARTICLES : [];
+    if (!articles.length) {
+      container.innerHTML = '<p style="text-align:center;color:var(--text-dim);padding:40px;">暂无拆解文章</p>';
+      return;
+    }
+
+    container.innerHTML = articles.map(article => `
+      <article class="work-card ga-card${article.cover ? ' has-cover' : ''}" data-article-id="${escapeHtml(article.id)}">
+        ${article.cover ? `<div class="card-cover"><img src="${escapeHtml(article.cover)}" alt="${escapeHtml(article.title)}" loading="lazy"></div>` : ''}
+        <div class="card-top">
+          ${!article.cover ? '<div class="pixel-avatar">◆</div>' : ''}
+          <div class="card-title-group">
+            <span class="card-tag">${escapeHtml(article.type || '游戏拆解')}</span>
+            <h3 class="card-title">${escapeHtml(article.title)}</h3>
+          </div>
+        </div>
+        <p class="card-summary">${escapeHtml(article.summary || '')}</p>
+        <div class="card-tags">
+          ${(article.tags || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}
+        </div>
+        <div class="card-meta">
+          <span>${escapeHtml(article.date || '')}</span>
+          <span>阅读全文 →</span>
+        </div>
+      </article>
+    `).join('');
+
+    container.querySelectorAll('[data-article-id]').forEach(card => {
+      card.addEventListener('click', () => {
+        const article = articles.find(item => item.id === card.dataset.articleId);
+        if (article) {
+          openGameAnalysisReader(article);
+        }
+      });
+    });
+  }
+
+  function syncHomeStats() {
+    const counts = {
+      fanworks: Array.isArray(WORKS_DATA?.fanworks) ? WORKS_DATA.fanworks.length : 0,
+      originals: Array.isArray(WORKS_DATA?.originals) ? WORKS_DATA.originals.length : 0,
+      games: Array.isArray(WORKS_DATA?.games) ? WORKS_DATA.games.length : 0,
+      'game-analysis': Array.isArray(typeof GAME_ANALYSIS_ARTICLES !== 'undefined' ? GAME_ANALYSIS_ARTICLES : null)
+        ? GAME_ANALYSIS_ARTICLES.length
+        : 0
+    };
+
+    document.querySelectorAll('.stat-num[data-stat-key]').forEach(el => {
+      const key = el.dataset.statKey;
+      const count = counts[key] ?? 0;
+      el.dataset.count = String(count);
+      el.textContent = '0';
+    });
+  }
+
+  renderGameAnalysisIndex();
+  syncHomeStats();
+
   document.querySelectorAll('.stat-num').forEach(el => observer.observe(el));
 });

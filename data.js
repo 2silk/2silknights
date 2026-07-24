@@ -2805,8 +2805,8 @@ const WORKS_DATA = {
         {type:'text', text: `"当时我问他在看什么。日日树前辈也是用......很怀念的语气对我说："`},
         {type:'text', text: `"「啊，没什么。只是某位喜欢生闷气的幽灵，刚才又跑来探望我了呢。」"`},
         ],
-      wordCount: 39077,
-      date: '2026-07',
+      wordCount: 42000,
+      date: '2026-04',
       role: ''
     },
     {
@@ -2878,7 +2878,7 @@ const WORKS_DATA = {
         {type:'text', text: `死亡如同化开的冰淇淋一样蒙住他的脸时，我又重复了一遍这句话，杰真的什么都不懂，而我早就懂啦。不，我们什么都懂，却终于在这时候学会了。`},
         ],
       wordCount: 4020,
-      date: '2026-07',
+      date: '2025-03',
       role: ''
     },
     {
@@ -3092,7 +3092,7 @@ const WORKS_DATA = {
         {type:'text', text: `身后的杜鹃声再也没有响起。`},
         ],
       wordCount: 10173,
-      date: '2026-07',
+      date: '2017-03',
       role: ''
     }
 ,
@@ -3157,7 +3157,7 @@ const WORKS_DATA = {
         {type:'text', text: `他们这样走过横滨最平凡的一个街头。`}
       ],
       wordCount: 3409,
-      date: '2026-07',
+      date: '2019-06',
       role: ''
     },
     {
@@ -3588,7 +3588,7 @@ const WORKS_DATA = {
         {type:'text', text: `きみをあいしていただけなの、あなたもそうでしょう`}
       ],
       wordCount: 18896,
-      date: '2026-07',
+      date: '2020-07',
       role: ''
     },
     {
@@ -3784,7 +3784,7 @@ const WORKS_DATA = {
         {type:'text', text: `FIN.`}
       ],
       wordCount: 6932,
-      date: '2026-07',
+      date: '2021-05',
       role: ''
     },
     {
@@ -3857,7 +3857,7 @@ const WORKS_DATA = {
         {type:'text', text: `得知甚尔死讯的那天，直哉还是应约去了理发店漂头，技师的手法妥帖得近似一种侮辱。他凝视着镜子里褪色的自己，想，那天给甚尔的钱还是太少了。`}
       ],
       wordCount: 3996,
-      date: '2026-07',
+      date: '2026-02',
       role: ''
     }
     ],
@@ -3866,7 +3866,7 @@ const WORKS_DATA = {
     {
       id: 'og4',
       title: '局中人',
-      date: '2026-07',
+      date: '2018',
       type: '长篇原创',
       wordCount: 11291,
       fandom: '原创',

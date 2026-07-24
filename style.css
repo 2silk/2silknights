@@ -333,6 +333,7 @@ body::before {
 .hero-stats {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 48px;
   margin-bottom: 40px;
   padding: 24px 0;
@@ -341,6 +342,7 @@ body::before {
 }
 
 .stat-item {
+  min-width: 96px;
   text-align: center;
 }
 
@@ -481,11 +483,25 @@ body::before {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
 }
 
 .work-card.has-cover {
   padding-top: 0;
+}
+
+/* 游戏拆解卡片封面保持在框架内 */
+.ga-card.has-cover {
+  padding-top: 24px;
+}
+
+.ga-card .card-cover {
+  width: 100%;
+  margin: 0 0 16px;
+  border: 1px solid var(--border-light);
+  box-sizing: border-box;
+  background: var(--paper-aged);
 }
 
 .card-link {
@@ -724,7 +740,7 @@ body::before {
 }
 
 .chapter-label {
-  color: var(--ink-muted);
+  color: var(--ink);
   margin-right: 8px;
   font-weight: 600;
 }
@@ -760,10 +776,10 @@ body::before {
 }
 
 .reader-about {
-  margin-top: 64px;
-  margin-bottom: 64px;
-  padding-top: 32px;
-  padding-bottom: 32px;
+  margin-top: 20px;
+  margin-bottom: 56px;
+  padding-top: 24px;
+  padding-bottom: 24px;
   border-top: 3px double var(--border);
   border-bottom: 3px double var(--border);
   text-align: center;
@@ -896,6 +912,16 @@ body::before {
   color: var(--ink);
   border-left-color: var(--ink);
   font-weight: 600;
+}
+
+.toc-item.toc-subitem {
+  padding-left: 24px;
+  font-size: 12px;
+}
+
+.toc-item.toc-subitem-2 {
+  padding-left: 36px;
+  font-size: 11px;
 }
 
 /* 目录中的藏头诗 */
@@ -1435,5 +1461,165 @@ body::before {
 
   #container-hehaijinyun .h5-topbar-title {
     font-size: 11px;
+  }
+}
+
+/* ===== 游戏拆解页 - 列表与报纸阅读排版 ===== */
+.game-analysis-page {
+  max-width: 1100px;
+}
+
+.ga-grid {
+  align-items: stretch;
+}
+
+.ga-card .card-title {
+  font-size: 22px;
+  line-height: 1.45;
+}
+
+.ga-card .card-summary {
+  -webkit-line-clamp: 4;
+}
+
+.ga-card .card-meta span:last-child {
+  font-weight: 600;
+  color: var(--ink-dim);
+}
+
+.reader-article-header--analysis {
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 3px double var(--border);
+}
+
+.reader-article-header--analysis .reader-article-title {
+  font-size: 34px;
+  letter-spacing: 0.03em;
+}
+
+.ga-article,
+.reader-article .ga-body {
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--ink);
+}
+
+.ga-article h2.ga-heading,
+.reader-article h2.ga-heading {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 48px 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px double var(--border);
+  font-family: Georgia, serif;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.ga-article h2.ga-heading:first-child,
+.reader-article h2.ga-heading:first-child {
+  margin-top: 0;
+}
+
+.ga-article h3.ga-heading,
+.reader-article h3.ga-heading {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 36px 0 16px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+  font-family: Georgia, serif;
+}
+
+.ga-article h4.ga-heading,
+.reader-article h4.ga-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 28px 0 12px;
+  padding-left: 12px;
+  border-left: 3px solid var(--border);
+}
+
+.ga-article p.ga-text,
+.reader-article p.ga-text {
+  margin-bottom: 1em;
+  text-indent: 2em;
+  text-align: justify;
+}
+
+/* 报纸风格图片网格 */
+.ga-img-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 24px 0 28px;
+}
+
+.ga-img-grid.single {
+  grid-template-columns: 1fr;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ga-img-grid.double {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.ga-img-grid.triple {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.ga-img-grid.quad {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.ga-img-item {
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 6px;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.06);
+  break-inside: avoid;
+}
+
+.ga-img-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: contrast(1.02);
+}
+
+.ga-img-item .ga-img-caption {
+  font-size: 11px;
+  color: var(--ink-muted);
+  text-align: center;
+  padding: 6px 4px 2px;
+  font-style: italic;
+  letter-spacing: 0.03em;
+  border-top: 1px solid var(--border-light);
+  margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+  .ga-img-grid.double,
+  .ga-img-grid.triple,
+  .ga-img-grid.quad {
+    grid-template-columns: 1fr;
+  }
+
+  .ga-card .card-title,
+  .reader-article-header--analysis .reader-article-title,
+  .ga-article h2.ga-heading,
+  .reader-article h2.ga-heading {
+    font-size: 22px;
+  }
+
+  .ga-article h3.ga-heading,
+  .reader-article h3.ga-heading {
+    font-size: 17px;
   }
 }

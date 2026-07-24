@@ -18,6 +18,7 @@
       <li><a href="#fanworks" class="nav-link" data-page="fanworks">同人作品</a></li>
       <li><a href="#originals" class="nav-link" data-page="originals">原创作品</a></li>
       <li><a href="#games" class="nav-link" data-page="games">AVG作品</a></li>
+      <li><a href="#game-analysis" class="nav-link" data-page="game-analysis">游戏拆解</a></li>
     </ul>
     <div class="nav-footer">
       <span>© 2026 笔墨之间</span>
@@ -43,19 +44,23 @@
         <div class="hero-content">
           <h1 class="hero-title">笔墨之间</h1>
           <p class="hero-subtitle">文案创作者 · 故事编织者 · 游戏叙事者</p>
-          <p class="hero-desc">用文字构建世界，用故事触动心灵。<br>这里收录了我的同人创作、原创作品与游戏剧本作品。</p>
+          <p class="hero-desc">用文字构建世界，用故事触动心灵。<br>这里收录了我的同人创作、原创作品、AVG作品与游戏拆解文章。</p>
           <div class="hero-stats">
             <div class="stat-item">
-              <span class="stat-num" data-count="15">0</span>
+              <span class="stat-num" data-stat-key="fanworks" data-count="0">0</span>
               <span class="stat-label">同人作品</span>
             </div>
             <div class="stat-item">
-              <span class="stat-num" data-count="12">0</span>
+              <span class="stat-num" data-stat-key="originals" data-count="0">0</span>
               <span class="stat-label">原创作品</span>
             </div>
             <div class="stat-item">
-              <span class="stat-num" data-count="5">0</span>
-              <span class="stat-label">游戏作品</span>
+              <span class="stat-num" data-stat-key="games" data-count="0">0</span>
+              <span class="stat-label">AVG作品</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num" data-stat-key="game-analysis" data-count="0">0</span>
+              <span class="stat-label">游戏拆解</span>
             </div>
           </div>
           <div class="hero-cta">
@@ -101,6 +106,19 @@
           <p>橙光AVG视觉小说，含剧情文案、分支设计与角色塑造。</p>
         </div>
         <div class="work-grid" id="gamesGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 游戏拆解 -->
+  <div class="page-container" id="container-game-analysis" data-page="game-analysis">
+    <div class="page-scroll">
+      <div class="page-content game-analysis-page">
+        <div class="page-header">
+          <h2>游戏拆解</h2>
+          <p>从游戏设计视角出发，拆解角色塑造、叙事结构与系统机制。</p>
+        </div>
+        <div class="work-grid ga-grid" id="gameAnalysisGrid"></div>
       </div>
     </div>
   </div>
@@ -344,6 +362,7 @@
   </footer>
 
   <script src="data.js"></script>
+  <script src="game-analysis-data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
