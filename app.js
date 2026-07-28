@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== 页面切换 =====
   function switchPage(pageId) {
+    // 更新当前页面
+    currentPage = pageId;
+
     // 隐藏所有页面
     pages.forEach(page => {
       page.classList.remove('active');
