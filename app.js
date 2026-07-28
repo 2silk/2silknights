@@ -223,8 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 渲染章节
     function renderBlock(sec) {
-      // ---------- heading 类型 (兼容 heading / h2 / h3 / h4) ----------
-      if (sec.type === 'heading' || sec.type === 'h2' || sec.type === 'h3' || sec.type === 'h4') {
+      // ---------- heading 类型 ----------
+      if (sec.type === 'heading') {
         const h = document.createElement('h3');
         h.className = 'reader-chapter';
         h.id = `ch-${chapters.length}`;
@@ -234,8 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // ---------- image 类型 (兼容 image / img) ----------
-      if (sec.type === 'image' || sec.type === 'img') {
+      // ---------- image 类型 ----------
+      if (sec.type === 'image') {
         const wrapper = document.createElement('div');
         wrapper.className = 'reader-image-wrapper';
         const img = document.createElement('img');
@@ -512,14 +512,39 @@ document.getElementById('h5Back')?.addEventListener('click', () => {
 });
 
 
-  // 数字动画
+  // 数字动画与首页统计
+  const statItems = document.querySelectorAll('.stat-item');
+
+  // 同步实际数量
+  statItems.forEach(item => {
+    const category = item.dataset.category;
+    const numEl = item.querySelector('.stat-num');
+    if (category && numEl && WORKS_DATA?.[category]) {
+      const count = WORKS_DATA[category].length;
+      numEl.dataset.count = count;
+      numEl.textContent = count;
+    }
+  });
+
+  // 点击统计项跳转对应页面
+  statItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const pageId = item.dataset.page;
+      if (pageId && pages) {
+        switchPage(pageId);
+        history.pushState(null, '', `#${pageId}`);
+      }
+    });
+  });
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const el = entry.target;
         const target = parseInt(el.dataset.count);
-        let current = 0;
-        const step = Math.ceil(target / 30);
+        const start = parseInt(el.textContent) || 0;
+        let current = start;
+        const step = Math.max(1, Math.ceil(target / 30));
         const timer = setInterval(() => {
           current += step;
           if (current >= target) {
