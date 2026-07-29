@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>2silk作品集 | 笔墨之间</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -129,6 +129,7 @@
       <div class="reader-topbar">
         <button class="reader-back" id="readerBack">← 返回</button>
         <span class="reader-topbar-title" id="readerTopTitle"></span>
+        <button class="reader-toc-toggle" id="readerTocToggle" aria-controls="readerToc" aria-expanded="false">目录</button>
       </div>
       <div class="reader-main">
         <div class="reader-scroll" id="readerScroll">
@@ -138,6 +139,7 @@
           <div class="toc-title">目 录</div>
           <div class="toc-list" id="readerTocList"></div>
         </nav>
+        <div class="reader-toc-backdrop" id="readerTocBackdrop"></div>
       </div>
     </div>
   </div>

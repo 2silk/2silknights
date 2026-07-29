@@ -10,10 +10,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('overlay');
   const navLinks = document.querySelectorAll('.nav-link');
   const pages = document.querySelectorAll('.page-container');
+  const readerToc = document.getElementById('readerToc');
+  const readerTocToggle = document.getElementById('readerTocToggle');
+  const readerTocBackdrop = document.getElementById('readerTocBackdrop');
 
   // ===== 状态 =====
   let currentPage = 'home';
   let readerState = null;
+
+  function setMobileReaderToc(open) {
+    const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+    const shouldOpen = Boolean(open && isMobile && currentPage === 'reader');
+    document.body.classList.toggle('reader-toc-open', shouldOpen);
+    if (readerTocToggle) {
+      readerTocToggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    }
+  }
+
+  function closeMobileReaderToc() {
+    setMobileReaderToc(false);
+  }
 
   // ===== 页面切换 =====
   function switchPage(pageId) {
@@ -46,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 关闭菜单
     closeMenu();
+    closeMobileReaderToc();
 
     // 更新当前页
     currentPage = pageId;
@@ -165,10 +182,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const readerScroll = document.getElementById('readerScroll');
 
     article.innerHTML = '';
+    article.className = 'reader-article';
+    article.dataset.category = category;
     tocList.innerHTML = '';
 
     const chapters = [];
     const acrosticChars = [];
+    let figureIndex = 0;
+
+    const categoryLabels = {
+      fanworks: '同人作品',
+      originals: '原创作品',
+      games: 'AVG作品',
+      gameAnalysis: '游戏拆解'
+    };
+
+    function formatWordCount(value) {
+      if (typeof value === 'number') {
+        return value >= 10000 ? `${(value / 10000).toFixed(1)}万字` : `${value}字`;
+      }
+      if (typeof value === 'string') {
+        return /字$/.test(value) ? value : `${value}字`;
+      }
+      return '';
+    }
 
     // 合并所有标签（来源 + 原tags，避免重复）
     const allTags = [
@@ -176,10 +213,17 @@ document.addEventListener('DOMContentLoaded', () => {
       ...work.tags.filter(t => t !== work.fandom)
     ];
 
+    const readerEyebrow = category === 'gameAnalysis'
+      ? '旧报副刊 · 游戏拆解'
+      : `作品阅读 · ${categoryLabels[category] || work.type}`;
+    const aboutLabel = category === 'gameAnalysis' ? '本期导语' : '关于本作';
+    const wordCountLabel = formatWordCount(work.wordCount);
+
     // 渲染文章头部
     const header = document.createElement('div');
     header.className = 'reader-article-header';
     header.innerHTML = `
+      <div class="reader-kicker">${readerEyebrow}</div>
       <h1 class="reader-article-title">${work.title}</h1>
       <div class="reader-article-meta">
         <span>${work.type}</span>
@@ -195,11 +239,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const aboutIntro = document.createElement('div');
     aboutIntro.className = 'reader-about';
     aboutIntro.innerHTML = `
-      <div class="reader-about-label">关于本作</div>
+      <div class="reader-about-label">${aboutLabel}</div>
       <p class="reader-about-text">${work.summary}</p>
       <div class="reader-about-meta">
         <span>${work.type}</span>
-        <span>${work.wordCount >= 10000 ? (work.wordCount / 10000).toFixed(1) + '万字' : work.wordCount + '字'}</span>
+        ${wordCountLabel ? `<span>${wordCountLabel}</span>` : ''}
         <span>${work.date}</span>
       </div>
       <div class="reader-about-tags">
@@ -224,7 +268,38 @@ document.addEventListener('DOMContentLoaded', () => {
         .replace(/^---+$/gm, '<hr>');
     }
 
-    // 渲染章节
+    // 渲染图片组
+    function renderImageGroup(images) {
+      const group = document.createElement('div');
+      group.className = `reader-image-group count-${Math.min(images.length, 4)}`;
+
+      images.forEach(imageSec => {
+        figureIndex += 1;
+
+        const wrapper = document.createElement('figure');
+        wrapper.className = 'reader-image-wrapper';
+
+        const img = document.createElement('img');
+        img.src = imageSec.src || '';
+        img.alt = (imageSec.caption || '').replace(/^图：/, '');
+        img.className = 'reader-image';
+        wrapper.appendChild(img);
+
+        const cap = document.createElement('figcaption');
+        cap.className = 'reader-caption';
+        const label = `图 ${String(figureIndex).padStart(2, '0')}`;
+        cap.innerHTML = imageSec.caption
+          ? `<span class="reader-caption-label">${label}</span><span class="reader-caption-text">${imageSec.caption}</span>`
+          : `<span class="reader-caption-label">${label}</span>`;
+        wrapper.appendChild(cap);
+
+        group.appendChild(wrapper);
+      });
+
+      article.appendChild(group);
+    }
+
+    // 渲染章节 / 段落
     function renderBlock(sec) {
       // ---------- heading 类型 ----------
       if (sec.type === 'heading') {
@@ -237,26 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // ---------- image 类型 ----------
-      if (sec.type === 'image') {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'reader-image-wrapper';
-        const img = document.createElement('img');
-        img.src = sec.src || '';
-        img.alt = (sec.caption || '').replace(/^图：/, '');
-        img.className = 'reader-image';
-        img.style.maxWidth = '100%';
-        wrapper.appendChild(img);
-        if (sec.caption) {
-          const cap = document.createElement('p');
-          cap.className = 'reader-caption';
-          cap.textContent = sec.caption;
-          wrapper.appendChild(cap);
-        }
-        article.appendChild(wrapper);
-        return;
-      }
-
       const text = sec.text || '';
       const trimmed = text.trim();
 
@@ -264,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (trimmed === '♢' || trimmed === '◇' || trimmed === '◆') {
         const div = document.createElement('div');
         div.className = 'reader-divider';
-        div.textContent = '❖';
+        div.textContent = '· · ·';
         article.appendChild(div);
         return;
       }
@@ -317,7 +372,23 @@ document.addEventListener('DOMContentLoaded', () => {
       article.appendChild(p);
     }
 
-    sections.forEach(renderBlock);
+    function renderSections(blocks) {
+      for (let i = 0; i < blocks.length; i++) {
+        const sec = blocks[i];
+        if (sec.type === 'image') {
+          const images = [sec];
+          while (i + 1 < blocks.length && blocks[i + 1].type === 'image') {
+            images.push(blocks[i + 1]);
+            i += 1;
+          }
+          renderImageGroup(images);
+          continue;
+        }
+        renderBlock(sec);
+      }
+    }
+
+    renderSections(sections);
 
     // 渲染目录
     chapters.forEach((ch, idx) => {
@@ -329,13 +400,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el && readerScroll) {
           el.scrollIntoView({ behavior: 'smooth' });
         }
+        closeMobileReaderToc();
       });
       tocList.appendChild(item);
     });
 
     // 番外
     if (extraSections.length) {
-      extraSections.forEach(renderBlock);
+      renderSections(extraSections);
     }
 
     // 齿牙为猾特殊处理：藏头诗在阅读完所有章节后显示在目录中
@@ -408,6 +480,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('readerBack')?.addEventListener('click', closeReader);
+  readerTocToggle?.addEventListener('click', () => {
+    const expanded = readerTocToggle.getAttribute('aria-expanded') === 'true';
+    setMobileReaderToc(!expanded);
+  });
+  readerTocBackdrop?.addEventListener('click', closeMobileReaderToc);
+  readerToc?.addEventListener('click', (event) => {
+    if (event.target === readerToc) {
+      closeMobileReaderToc();
+    }
+  });
+  window.addEventListener('resize', closeMobileReaderToc);
 
   // 首页按钮特殊处理
   document.querySelectorAll('[data-nav]').forEach(btn => {
@@ -476,7 +559,10 @@ function scrollToH5Section(id) {
 
 // Close on Escape key
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeH5Notes();
+  if (e.key === 'Escape') {
+    closeH5Notes();
+    closeMobileReaderToc();
+  }
 });
 
 // Nav dot click
