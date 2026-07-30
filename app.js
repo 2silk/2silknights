@@ -289,11 +289,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const cap = document.createElement('figcaption');
         cap.className = 'reader-caption';
-        const label = `图 ${String(figureIndex).padStart(2, '0')}`;
-        cap.innerHTML = imageSec.caption
-          ? `<span class="reader-caption-label">${label}</span><span class="reader-caption-text">${imageSec.caption}</span>`
-          : `<span class="reader-caption-label">${label}</span>`;
-        wrapper.appendChild(cap);
+        // 仅在有图注文字时渲染，且不再显示自动编号“图 XX”
+        if (imageSec.caption) {
+          cap.innerHTML = `<span class="reader-caption-text">${imageSec.caption}</span>`;
+          wrapper.appendChild(cap);
+        }
 
         group.appendChild(wrapper);
       });
