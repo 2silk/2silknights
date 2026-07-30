@@ -235,22 +235,24 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     article.appendChild(header);
 
-    // 关于本作（移到最前面）
-    const aboutIntro = document.createElement('div');
-    aboutIntro.className = 'reader-about';
-    aboutIntro.innerHTML = `
-      <div class="reader-about-label">${aboutLabel}</div>
-      <p class="reader-about-text">${work.summary}</p>
-      <div class="reader-about-meta">
-        <span>${work.type}</span>
-        ${wordCountLabel ? `<span>${wordCountLabel}</span>` : ''}
-        <span>${work.date}</span>
-      </div>
-      <div class="reader-about-tags">
-        ${allTags.map(t => `<span>${t}</span>`).join('')}
-      </div>
-    `;
-    article.appendChild(aboutIntro);
+    // 关于本作（仅在有简介时显示）
+    if ((work.summary || '').trim()) {
+      const aboutIntro = document.createElement('div');
+      aboutIntro.className = 'reader-about';
+      aboutIntro.innerHTML = `
+        <div class="reader-about-label">${aboutLabel}</div>
+        <p class="reader-about-text">${work.summary}</p>
+        <div class="reader-about-meta">
+          <span>${work.type}</span>
+          ${wordCountLabel ? `<span>${wordCountLabel}</span>` : ''}
+          <span>${work.date}</span>
+        </div>
+        <div class="reader-about-tags">
+          ${allTags.map(t => `<span>${t}</span>`).join('')}
+        </div>
+      `;
+      article.appendChild(aboutIntro);
+    }
 
     // 简单 Markdown 转换
     function renderMarkdown(text) {
