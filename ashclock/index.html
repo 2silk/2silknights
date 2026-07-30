@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>《灰烬钟》Ash Clock · 策划案 + 可玩切片</title>
+<style>
+  /* ============================================================
+     《灰烬钟》策划案 + 垂直切片 Demo
+     · 上半：图形化策划案（叙事收口 / 核心机制 / 因果对照）
+     · 下半：可真玩的「支撑齿轮双解闭环」——极简纯色方块
+     ============================================================ */
+  :root{
+    --bg:#0d1017; --panel:#141a24; --panel2:#1b2330; --line:#2a3546;
+    --ink:#e6edf3; --muted:#93a4b8; --dim:#5f7288;
+    --blue:#3b82f6;   /* 艾洛 / 玩家(上塔) */
+    --amber:#e0a030;  /* 莱恩 / 齿轮 / 光 */
+    --red:#ef4444;    /* 破坏 / 痛苦 / 敌 */
+    --green:#22c55e;  /* 温柔 / 无伤 / 终点 */
+    --abyss:#050608;  /* 深渊 */
+    --violet:#8b5cf6; /* 反转 / 真相 */
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:system-ui,"Segoe UI","Microsoft YaHei",sans-serif;
+    line-height:1.6; padding:32px 18px 80px;
+  }
+  .wrap{ max-width:960px; margin:0 auto; }
+
+  /* ---- 头部 ---- */
+  header{ text-align:center; padding:26px 0 30px; border-bottom:1px solid var(--line); }
+  header .badge{ font-size:12px; letter-spacing:3px; color:var(--amber); }
+  header h1{ font-size:34px; letter-spacing:6px; margin:8px 0 4px; }
+  header h1 small{ font-size:15px; letter-spacing:2px; color:var(--dim); }
+  header .core{ color:var(--muted); font-size:15px; max-width:640px; margin:14px auto 0; }
+  header .core b{ color:var(--ink); }
+
+  /* ---- 通用区块 ---- */
+  section{ margin-top:40px; }
+  h2{ font-size:20px; letter-spacing:1px; display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  h2 .no{ font-size:12px; color:var(--bg); background:var(--amber); border-radius:5px; padding:2px 8px; letter-spacing:0; }
+  .lead{ color:var(--muted); font-size:14px; margin-bottom:16px; }
+  .grid{ display:grid; gap:14px; }
+  .g3{ grid-template-columns:repeat(3,1fr); }
+  @media(max-width:760px){ .g3{ grid-template-columns:1fr; } }
+
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+  .card h3{ font-size:15px; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+  .card p{ font-size:13.5px; color:var(--muted); }
+  .tag{ display:inline-block; font-size:11px; padding:1px 7px; border-radius:20px; }
+  .t-blue{ background:#1c3457; color:#9dc0ff; }
+  .t-amber{ background:#3a2c12; color:#f0c579; }
+  .t-red{ background:#3a1717; color:#ff9a9a; }
+  .t-green{ background:#123521; color:#8ff0b4; }
+  .t-violet{ background:#2a1f47; color:#c4b0ff; }
+
+  .quote{ border-left:3px solid var(--amber); padding:10px 16px; background:var(--panel2);
+          border-radius:0 8px 8px 0; color:#e8dcc0; font-size:15px; margin:10px 0; }
+  .quote.violet{ border-color:var(--violet); }
+
+  /* ---- Loop 流程 ---- */
+  .loop{ display:flex; flex-direction:column; gap:0; }
+  .loop .step{ background:var(--panel); border:1px solid var(--line); border-radius:10px;
+               padding:14px 16px; position:relative; }
+  .loop .arrow{ text-align:center; color:var(--dim); font-size:18px; padding:4px 0; }
+  .loop .step .k{ font-size:12px; color:var(--dim); }
+  .loop .step .h{ font-weight:700; margin:2px 0 4px; }
+  .loop .step .d{ font-size:13px; color:var(--muted); }
+  .loop .step.b1{ border-left:4px solid var(--blue); }
+  .loop .step.b2{ border-left:4px solid var(--violet); }
+  .loop .step.b3{ border-left:4px solid var(--amber); }
+  .loop .step.b4{ border-left:4px solid var(--green); }
+  .loopback{ text-align:center; color:var(--dim); font-size:12.5px; margin-top:8px; font-style:italic; }
+
+  /* ---- 因果对照表 ---- */
+  table{ width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; }
+  th,td{ border:1px solid var(--line); padding:9px 10px; text-align:left; vertical-align:top; }
+  th{ background:var(--panel2); color:var(--muted); font-weight:600; }
+  td.obj{ font-weight:700; color:var(--ink); white-space:nowrap; }
+  td .rude{ color:#ffb0b0; }
+  td .kind{ color:#9ff0bd; }
+  tr:nth-child(even) td{ background:#111823; }
+  .hl-row td{ background:#1a2233 !important; box-shadow:inset 3px 0 0 var(--amber); }
+  .hl-note{ font-size:12px; color:var(--amber); margin-top:6px; }
+
+  /* ============================================================
+     可玩切片样式
+     ============================================================ */
+  #demo{ background:var(--panel); border:1px solid var(--line); border-radius:16px;
+         padding:22px; margin-top:18px; }
+  #demoStage{ position:relative; min-height:430px; display:flex; flex-direction:column; align-items:center; }
+
+  /* 塔（3层竖排格子） */
+  .tower{ display:flex; flex-direction:column; gap:8px; align-items:center; margin:6px 0 14px; }
+  .floor{ display:flex; align-items:center; gap:12px; }
+  .floor .fname{ width:120px; text-align:right; font-size:12.5px; color:var(--muted); }
+  .box{ width:80px; height:80px; border-radius:10px; background:var(--panel2);
+        border:1px solid var(--line); position:relative; display:flex; align-items:center;
+        justify-content:center; transition:transform .12s, box-shadow .12s, background .2s; }
+  .box .lab{ font-size:12px; color:var(--dim); position:absolute; bottom:5px; }
+  /* 棋子（纯色方块） */
+  .pawn{ width:50px; height:50px; border-radius:8px; display:flex; align-items:center;
+         justify-content:center; font-size:13px; font-weight:800; color:#0b0b0b; }
+  .pawn.alo{ background:var(--blue); color:#fff; }        /* 艾洛 */
+  .pawn.ryan{ background:var(--amber); }                   /* 莱恩 */
+  .obj-gear{ background:var(--amber); }                    /* 齿轮完好 */
+  .obj-gear.broke{ background:#5a4a22; color:#a98; }       /* 齿轮报废 */
+  .obj-goal{ background:var(--green); color:#06280f; }     /* 终点/婴孩 */
+  .box.current{ box-shadow:0 0 0 3px var(--blue), 0 0 18px #3b82f688; }
+  .box.current.ryanturn{ box-shadow:0 0 0 3px var(--amber), 0 0 18px #e0a03088; }
+  .box.hazard{ animation:pulse 1s infinite; }
+  @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 2px var(--red);} 50%{ box-shadow:0 0 0 5px #ef444466;} }
+
+  /* HUD */
+  #hud{ display:flex; gap:22px; flex-wrap:wrap; justify-content:center; font-size:13px; margin-bottom:6px; }
+  #hud .stat b{ color:var(--ink); }
+  .hp-bar{ display:inline-flex; gap:3px; vertical-align:middle; }
+  .hp-bar i{ width:12px; height:12px; border-radius:3px; background:var(--red); display:inline-block; }
+  .hp-bar i.gone{ background:#3a2020; }
+
+  /* 手牌 / 选项按钮 */
+  #choices{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:6px; min-height:44px; }
+  .btn{ padding:11px 16px; border:1px solid var(--line); border-radius:10px; background:var(--panel2);
+        color:var(--ink); font-size:14px; cursor:pointer; transition:.12s; max-width:280px; }
+  .btn:hover{ background:#242f3e; transform:translateY(-1px); }
+  .btn.rude{ border-color:#5a2a2a; } .btn.rude:hover{ background:#2a1717; }
+  .btn.kind{ border-color:#274d33; } .btn.kind:hover{ background:#132a1c; }
+  .btn small{ display:block; font-size:11px; color:var(--dim); margin-top:3px; }
+  .btn.rude:hover small,.btn.kind:hover small{ color:var(--muted); }
+
+  /* 旁白 / 演出 */
+  #say{ min-height:48px; text-align:center; font-size:14.5px; color:#e8dcc0; margin:10px 0 4px;
+        max-width:560px; }
+  #say .who{ color:var(--amber); font-weight:700; }
+
+  /* 反转 / 结局全屏演出 */
+  #curtain{ position:fixed; inset:0; background:#000; display:none; z-index:50;
+            align-items:center; justify-content:center; flex-direction:column; gap:16px;
+            text-align:center; padding:30px; cursor:pointer; }
+  #curtain.show{ display:flex; }
+  #curtain .big{ font-size:22px; line-height:1.9; max-width:600px; color:#fff; }
+  #curtain .sub{ font-size:13px; color:#777; }
+  #curtain.violet .big{ color:#d8ccff; }
+
+  #toast{ position:fixed; top:30px; left:50%; transform:translateX(-50%); background:var(--red);
+          color:#fff; font-weight:800; font-size:18px; padding:8px 20px; border-radius:10px;
+          opacity:0; transition:.15s; z-index:60; pointer-events:none; }
+  #toast.show{ opacity:1; }
+
+  /* 结算面板 */
+  #result{ display:none; text-align:center; }
+  #result.show{ display:block; }
+  #result .verdict{ font-size:18px; margin:8px 0; }
+  #result .painbig{ font-size:40px; font-weight:800; }
+  .restart{ margin-top:16px; padding:11px 22px; background:var(--amber); color:#111; border:none;
+            border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; }
+
+  .legend{ font-size:12px; color:var(--dim); text-align:center; margin-top:14px; }
+  .legend span{ display:inline-flex; align-items:center; gap:5px; margin:0 8px; }
+  .legend b{ width:11px; height:11px; border-radius:3px; display:inline-block; }
+
+  footer{ margin-top:50px; text-align:center; color:var(--dim); font-size:12px;
+          border-top:1px solid var(--line); padding-top:20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ 头部 ============ -->
+  <header>
+    <div class="badge">ROGUELITE · 因果回文 · 单人叙事</div>
+    <h1>灰烬钟 <small>Ash Clock</small></h1>
+    <p class="core">
+      一座你玩两遍的塔。上塔，你是勇者<b>艾洛</b>，用尽一切手段抵达塔顶；
+      下塔，你是守钟人<b>莱恩</b>，用血肉偿还上一程亲手造下的每一道伤。
+      <br>塔每局随机，但因果永远闭环——<b>你破坏的方式，决定你受伤的方式。</b>
+    </p>
+  </header>
+
+  <!-- ============ 一、护城河 / 差异化 ============ -->
+  <section>
+    <h2><span class="no">01</span> 一句话护城河</h2>
+    <p class="lead">先说清楚"为什么它不是又一个 Undertale / 神秘塔"。</p>
+    <div class="quote">
+      <b>回文塔：</b>随机生成负责"每局都不一样"，因果闭环负责"每局都是你亲手造的"。
+      上塔的每一个操作，都会变成下塔时你自己身上的一道具体的伤。
+    </div>
+    <div class="grid g3">
+      <div class="card">
+        <h3>🎲 肉鸽的"新鲜"</h3>
+        <p>楼层、物件、敌人每局随机，锁定整局。保证重复可玩。</p>
+      </div>
+      <div class="card">
+        <h3>🔁 回文的"必然"</h3>
+        <p>下塔=同一座塔的镜像，且叠加你所有破坏状态。原路走回来，直面自己。</p>
+      </div>
+      <div class="card">
+        <h3>💔 情感的"暴击"</h3>
+        <p>粗暴解更爽更快，新手必选 → 下塔第一次被自己的选择反噬。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 二、叙事动力设计（收口三问题） ============ -->
+  <section>
+    <h2><span class="no">02</span> 叙事动力：为什么玩家愿意一次次重开？</h2>
+    <p class="lead">
+      不靠"揭秘"（真相是一次性消费品），靠一个每局都重新逼问你的哲学命题。
+    </p>
+    <div class="quote violet">
+      母题 · 尼采的永恒轮回：<br>
+      <b>"如果这一切要你一模一样地再过无数遍，你还愿意吗？"</b>
+    </div>
+    <div class="grid g3">
+      <div class="card">
+        <h3><span class="tag t-violet">动力</span> 从揭秘 → 回答</h3>
+        <p>玩家第一次被真相击中；之后每一局，都是在用"这次要不要温柔拆塔"来回答那个问题。</p>
+      </div>
+      <div class="card">
+        <h3><span class="tag t-amber">留白</span> 三个不解答的钩子</h3>
+        <p>大灾变是什么 · 为何封印 · 为何重置前一天 —— Demo 只掉碎片，永不给答案。留白＝永恒轮回本身。</p>
+      </div>
+      <div class="card">
+        <h3><span class="tag t-green">真结局</span> 那句"我愿意"</h3>
+        <p>某一局全程温柔、痛苦值归零 → 莱恩第一次笑着说"别怕，很快就结束了"。循环没被打破，但你第一次没让他流血。</p>
+      </div>
+    </div>
+    <p class="hl-note">给评审的定位：《灰烬钟》不解释世界，它让你反复经历世界。</p>
+  </section>
+
+  <!-- ============ 三、单局 Loop ============ -->
+  <section>
+    <h2><span class="no">03</span> 单局流程 · The Loop <span style="font-size:12px;color:var(--dim);font-weight:400;">约 20–40 分钟</span></h2>
+    <div class="loop">
+      <div class="step b1">
+        <div class="k">阶段 1 · 上塔</div>
+        <div class="h"><span class="tag t-blue">艾洛 · 复仇 · 埋雷</span> 塔底 → 逐层向上 → 顶层</div>
+        <div class="d">楼层随机生成 · 战斗/交互/破坏/拾取 · 每个破坏行为写入【因果池】</div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step b2">
+        <div class="k">阶段 2 · 顶层真相（中场反转 · 固定演出）</div>
+        <div class="h"><span class="tag t-violet">莱恩 · 真相灌入</span></div>
+        <div class="d">杀死执钟人莱恩 → 触碰灰烬时针 → 真相灌入 → 操控权移交给莱恩</div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step b3">
+        <div class="k">阶段 3 · 下塔</div>
+        <div class="h"><span class="tag t-amber">莱恩 · 救赎 · 还债</span> 顶层 → 逐层向下 → 塔底</div>
+        <div class="d">楼层结构锁定（=刚爬过的塔）· 读取【因果池】逐层结算 · 用生命/肢体/时间为代价通过</div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step b4">
+        <div class="k">阶段 4 · 塔底结局（固定演出 + 计分）</div>
+        <div class="h"><span class="tag t-green">重启循环</span></div>
+        <div class="d">抱起小艾洛，重启循环 · 结算本局"痛苦值" · 累积到存档"伤痕墙"</div>
+      </div>
+    </div>
+    <div class="loopback">↺ 下一局：新的随机塔，但玩家更"懂"了 —— 角色记忆重置，玩家认知成长。</div>
+    <p class="hl-note">⚠ 死亡不是失败结局：莱恩耗尽生命 → 循环崩坏，城市永久冻结 → 本局失败，重开新循环。</p>
+  </section>
+
+  <!-- ============ 四、破坏/还债对照表 ============ -->
+  <section>
+    <h2><span class="no">04</span> 破坏 ⇄ 还债 对照机制表 <span style="font-size:12px;color:var(--red);font-weight:400;">核心中的核心</span></h2>
+    <p class="lead">
+      每个可交互物都有【粗暴解】和【温柔解】。上塔时两者难度相近、且不提示优劣；下塔时后果天差地别。
+    </p>
+    <table>
+      <thead>
+        <tr><th>交互物</th><th>上塔 · 粗暴解（埋雷）</th><th>上塔 · 温柔解（伏笔）</th><th>下塔 · 结算差异</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hl-row">
+          <td class="obj">⚙ 支撑齿轮</td>
+          <td class="rude">拔卡扣当飞镖砸敌（齿轮报废）</td>
+          <td class="kind">浇油让它慢停（齿轮完好）</td>
+          <td><span class="rude">地板垮塌，献祭一截手臂顶住齿轮</span> / <span class="kind">轻推复位，无伤</span></td>
+        </tr>
+        <tr>
+          <td class="obj">🛢 机油桶</td>
+          <td class="rude">泼油点火烧敌（油尽）</td>
+          <td class="kind">只取少量润滑（油存）</td>
+          <td><span class="rude">干磨关节，每步流失生命</span> / <span class="kind">顺畅通过</span></td>
+        </tr>
+        <tr>
+          <td class="obj">🕯 长明灯</td>
+          <td class="rude">抢灯油补自己（此层永暗）</td>
+          <td class="kind">借火不取油（灯仍亮）</td>
+          <td><span class="rude">全黑摸索，踩碎玻璃扣血</span> / <span class="kind">照亮安全</span></td>
+        </tr>
+        <tr>
+          <td class="obj">🪟 彩绘玻璃</td>
+          <td class="rude">砸碎抄近路（寒风灌入）</td>
+          <td class="kind">绕行不砸（窗完好）</td>
+          <td><span class="rude">寒霜蔓延，减速+持续掉血</span> / <span class="kind">温暖通过</span></td>
+        </tr>
+        <tr>
+          <td class="obj">🪢 吊索/钟绳</td>
+          <td class="rude">割断速降（结构失衡）</td>
+          <td class="kind">攀爬使用（保留）</td>
+          <td><span class="rude">无绳可用，坠落损血/绕远</span> / <span class="kind">顺绳而下</span></td>
+        </tr>
+        <tr>
+          <td class="obj">💀 敌人残影</td>
+          <td class="rude">踩踏碾过（亵渎）</td>
+          <td class="kind">绕开/合十（尊重）</td>
+          <td><span class="rude">亡魂化敌阻路</span> / <span class="kind">亡魂让路/助力</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="hl-note">↑ 高亮行「支撑齿轮」= 下方可玩切片验证的情感核弹，优先做通。</p>
+  </section>
+
+  <!-- ============ 五、可玩切片 ============ -->
+  <section>
+    <h2><span class="no">05</span> 垂直切片 · 亲手玩一遍</h2>
+    <p class="lead">
+      验证四件事：① 因果记录跑通 ② 支撑齿轮双解闭环 ③ 反转演出衔接 ④ 两种结局对比。
+      Demo 用固定布局、极简纯色方块跑通机制（随机生成为后期扩展）。
+    </p>
+
+    <div id="demo">
+      <!-- HUD -->
+      <div id="hud">
+        <span class="stat">阶段：<b id="phaseLabel">上塔 · 艾洛</b></span>
+        <span class="stat">莱恩生命：<span class="hp-bar" id="hpBar"></span></span>
+        <span class="stat">痛苦值：<b id="painLabel" style="color:var(--red)">0</b></span>
+        <span class="stat">因果池：<b id="poolLabel" style="color:var(--muted)">空</b></span>
+      </div>
+
+      <div id="demoStage">
+        <!-- 塔：3 层，塔底在下、顶层在上 -->
+        <div class="tower" id="tower"></div>
+
+        <div id="say">你是勇者艾洛，从塔底一路杀到了这里。前方有一座巨大的<b style="color:var(--amber)">支撑齿轮</b>挡路，齿轮后面是执钟人。</div>
+
+        <!-- 选项按钮 -->
+        <div id="choices"></div>
+
+        <!-- 结算面板 -->
+        <div id="result">
+          <div class="verdict" id="verdictText"></div>
+          <div>本局痛苦值</div>
+          <div class="painbig" id="finalPain">0</div>
+          <div id="verdictSub" style="color:var(--muted);font-size:13px;margin-top:8px;"></div>
+          <button class="restart" id="restartBtn">↺ 重启循环（换个选择再玩一遍）</button>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span><b style="background:var(--blue)"></b>艾洛(上塔)</span>
+        <span><b style="background:var(--amber)"></b>莱恩(下塔)/齿轮</span>
+        <span><b style="background:var(--green)"></b>婴孩/终点</span>
+        <span><b style="background:#5a4a22"></b>报废齿轮</span>
+      </div>
+    </div>
+    <p class="hl-note">试试：一遍全程选红色「粗暴解」，再重开一遍全程选绿色「温柔解」，感受下塔的差别。</p>
+  </section>
+
+  <footer>
+    《灰烬钟 · Ash Clock》策划案 + 垂直切片 · 单文件 Demo ·
+    机制内核：因果回文镜像肉鸽 · 母题：永恒轮回
+  </footer>
+</div>
+
+<!-- 全屏演出 / 结局 -->
+<div id="curtain"></div>
+<div id="toast">痛！</div>
+
+<script>
+/* ============================================================
+   可玩切片逻辑
+   塔结构（固定，Demo阶段）：
+     顶层(2) 灰烬时针室   —— 反转
+     中层(1) 发条工坊     —— 支撑齿轮（双解闭环核心）
+     塔底(0) 废墟         —— 结局：救小艾洛
+   ============================================================ */
+
+const FLOORS = [
+  { key:0, name:'塔底 · 废墟' },
+  { key:1, name:'中层 · 发条工坊' },
+  { key:2, name:'顶层 · 灰烬时针室' },
+];
+
+let S = {}; // 游戏状态
+
+function reset(){
+  S = {
+    phase:'up',        // up 上塔 / down 下塔 / end
+    who:'alo',         // 当前操控：alo 艾洛 / ryan 莱恩
+    pos:0,             // 当前所在层（上塔从0爬到2）
+    ryanHp:3,          // 莱恩生命（仅下塔消耗）
+    pain:0,            // 痛苦值
+    gearBroken:null,   // 因果池：中层齿轮是否被破坏（true粗暴/false温柔/null未处理）
+    passedGear:false,  // 上塔是否已通过齿轮层
+  };
+  hideResult();
+  renderAll();
+  say('你是勇者<b class="who">艾洛</b>，从塔底一路杀到了这里。前方一座巨大的<b style="color:var(--amber)">支撑齿轮</b>挡路，齿轮后是执钟人。');
+  step_up();
+}
+
+/* ---------- 渲染 ---------- */
+function renderTower(){
+  const tower = document.getElementById('tower');
+  tower.innerHTML='';
+  // 从顶到底渲染（视觉上顶层在上）
+  for(let i=FLOORS.length-1;i>=0;i--){
+    const f=FLOORS[i];
+    const row=document.createElement('div'); row.className='floor';
+
+    const nm=document.createElement('div'); nm.className='fname'; nm.textContent=f.name;
+    const box=document.createElement('div'); box.className='box';
+
+    // 当前位置高亮
+    if(S.pos===i && S.phase!=='end'){
+      box.classList.add('current');
+      if(S.who==='ryan') box.classList.add('ryanturn');
+    }
+
+    // 放置内容
+    const content = boxContent(i);
+    if(content.pawn){
+      const p=document.createElement('div'); p.className='pawn '+content.pawn.cls;
+      p.textContent=content.pawn.txt; box.appendChild(p);
+    } else if(content.obj){
+      const o=document.createElement('div'); o.className='pawn '+content.obj.cls;
+      o.textContent=content.obj.txt; box.appendChild(o);
+      if(content.hazard) box.classList.add('hazard');
+    }
+    if(content.lab){ const l=document.createElement('div'); l.className='lab'; l.textContent=content.lab; box.appendChild(l);}
+
+    row.appendChild(nm); row.appendChild(box);
+    tower.appendChild(row);
+  }
+}
+
+// 决定每层格子显示什么
+function boxContent(i){
+  const pawnHere = (S.pos===i && S.phase!=='end');
+  // 塔底终点：下塔时显示婴孩
+  if(i===0){
+    if(pawnHere) return { pawn:pawn(), lab:'废墟' };
+    if(S.phase==='down') return { obj:{cls:'obj-goal',txt:'婴'}, lab:'待救' };
+    return { lab:'废墟' };
+  }
+  // 中层齿轮
+  if(i===1){
+    if(pawnHere){
+      // 下塔且是危险格（齿轮报废）时标记 hazard
+      const hz = (S.phase==='down' && S.gearBroken===true);
+      return { pawn:pawn(), lab:'发条工坊', hazard:hz };
+    }
+    if(S.gearBroken===true) return { obj:{cls:'obj-gear broke',txt:'⚙'}, lab:'报废' };
+    if(S.gearBroken===false) return { obj:{cls:'obj-gear',txt:'⚙'}, lab:'完好' };
+    return { obj:{cls:'obj-gear',txt:'⚙'}, lab:'齿轮' };
+  }
+  // 顶层
+  if(i===2){
+    if(pawnHere) return { pawn:pawn(), lab:'时针室' };
+    return { lab:'时针室' };
+  }
+  return {};
+}
+function pawn(){
+  return S.who==='alo' ? {cls:'alo',txt:'艾洛'} : {cls:'ryan',txt:'莱恩'};
+}
+
+function renderHud(){
+  document.getElementById('phaseLabel').textContent =
+    S.phase==='up' ? '上塔 · 艾洛' : (S.phase==='down' ? '下塔 · 莱恩' : '循环结算');
+  // 生命条
+  const bar=document.getElementById('hpBar'); bar.innerHTML='';
+  const max=3;
+  for(let k=0;k<max;k++){ const i=document.createElement('i'); if(k>=S.ryanHp)i.className='gone'; bar.appendChild(i);}
+  document.getElementById('painLabel').textContent=S.pain;
+  // 因果池
+  const pl=document.getElementById('poolLabel');
+  if(S.gearBroken===true){ pl.textContent='齿轮=粗暴破坏'; pl.style.color='#ffb0b0'; }
+  else if(S.gearBroken===false){ pl.textContent='齿轮=温柔保留'; pl.style.color='#9ff0bd'; }
+  else { pl.textContent='空'; pl.style.color='var(--muted)'; }
+}
+function renderAll(){ renderTower(); renderHud(); }
+
+/* ---------- 文案 & 选项 ---------- */
+function say(html){ document.getElementById('say').innerHTML=html; }
+function setChoices(list){
+  const box=document.getElementById('choices'); box.innerHTML='';
+  list.forEach(c=>{
+    const b=document.createElement('button'); b.className='btn '+(c.cls||'');
+    b.innerHTML = c.label + (c.sub? '<small>'+c.sub+'</small>':'');
+    b.onclick=c.on; box.appendChild(b);
+  });
+}
+function clearChoices(){ document.getElementById('choices').innerHTML=''; }
+
+/* ============================================================
+   上塔流程
+   ============================================================ */
+function step_up(){
+  S.phase='up'; S.who='alo';
+  renderAll();
+  if(S.pos===0){ // 塔底：起步爬到中层
+    say('<b class="who">艾洛：</b>时间被冻住的城市，源头就在这座塔。上去，杀了守钟人。');
+    setChoices([{ label:'▲ 向上爬，进入发条工坊', on:()=>{ S.pos=1; step_gear(); } }]);
+  }
+}
+
+// 中层：支撑齿轮双解闭环（核心）
+function step_gear(){
+  renderAll();
+  say('中层挡着一座巨大的<b style="color:var(--amber)">支撑齿轮</b>，正缓缓转动。你得让它停下才能过去。<br><span style="color:var(--dim);font-size:13px;">（游戏不会告诉你哪种更好——凭直觉选。）</span>');
+  setChoices([
+    { cls:'rude',
+      label:'⚔ 拔掉卡扣，当飞镖砸向敌人',
+      sub:'更快更爽 · 齿轮报废',
+      on:()=>{
+        S.gearBroken=true;              // 写入因果池
+        renderAll();
+        say('卡扣被你拔下掷出，正中敌人！齿轮发出刺耳的空转声，彻底报废。<br><span style="color:#ffb0b0">〔因果池已记录：齿轮=粗暴破坏〕</span>');
+        setChoices([{ label:'▲ 继续向上，冲向顶层', on:()=>{ S.pos=2; step_top(); } }]);
+      }},
+    { cls:'kind',
+      label:'🛢 从旁边油桶取油，浇上让它慢停',
+      sub:'多花点时间 · 齿轮完好',
+      on:()=>{
+        S.gearBroken=false;             // 写入因果池
+        renderAll();
+        say('你耐着性子给齿轮浇油，它缓缓、平稳地停了下来，齿牙完好无损。<br><span style="color:#9ff0bd">〔因果池已记录：齿轮=温柔保留〕</span>');
+        setChoices([{ label:'▲ 继续向上，冲向顶层', on:()=>{ S.pos=2; step_top(); } }]);
+      }},
+  ]);
+}
+
+// 顶层：真相反转
+function step_top(){
+  renderAll();
+  say('<b class="who">艾洛：</b>执钟人莱恩就在眼前，他……没有反抗。');
+  setChoices([
+    { cls:'rude', label:'🗡 杀死执钟人莱恩', on:()=> reversalCutscene() }
+  ]);
+}
+
+/* ============================================================
+   中场反转演出（固定）
+   ============================================================ */
+function reversalCutscene(){
+  const c=document.getElementById('curtain');
+  c.className='show violet';
+  c.innerHTML =
+    '<div class="big">剑落下。莱恩闭上眼，像是等了很久。</div>'+
+    '<div class="sub">（点击继续）</div>';
+  clearChoices();
+
+  const scenes = [
+    '你的手，按上了那口<b style="color:#e0a030">灰烬时针</b>。',
+    '真相灌入——<br>杀死守钟人的那一刻，你<b>成为了</b>守钟人。',
+    '你抱起时针室里一个陌生的婴孩。<br>城市大灾变的前一天。你必须把她送下塔、送出去。',
+    '而回家的路，是<b style="color:#c4b0ff">刚才那个勇者亲手拆过的塔</b>。',
+    '现在，你是莱恩。',
+  ];
+  let idx=0;
+  const next=()=>{
+    if(idx<scenes.length){
+      c.innerHTML = '<div class="big">'+scenes[idx]+'</div><div class="sub">（点击继续）</div>';
+      idx++;
+    }else{
+      c.classList.remove('show');
+      c.onclick=null;
+      startDown();
+    }
+  };
+  c.onclick=next; next();
+}
+
+/* ============================================================
+   下塔流程：读取因果池，逐层结算
+   ============================================================ */
+function startDown(){
+  S.phase='down'; S.who='ryan'; S.pos=2;
+  renderAll();
+  say('<b class="who">莱恩：</b>抱着孩子，从顶层往下走。别怕……我们一步一步来。');
+  setChoices([{ label:'▼ 向下，回到发条工坊', on:()=>{ S.pos=1; settleGear(); } }]);
+}
+
+// 中层结算：齿轮的因果在此兑现
+function settleGear(){
+  renderAll();
+  if(S.gearBroken===true){
+    // 粗暴：地板垮塌，需献祭手臂
+    say('工坊里那座齿轮<b style="color:#ffb0b0">报废了、卡死了</b>——是上一程的你拔掉了它的卡扣。<br>地板正在垮塌，齿轮不再支撑。你得让它转起来才能带孩子过去。');
+    setChoices([
+      { cls:'rude',
+        label:'🩸 伸手臂进齿轮，用血肉顶住让它转动',
+        sub:'唯一的路 · 代价惨重',
+        on:()=>{
+          S.ryanHp-=1; S.pain+=3;
+          renderAll(); toast('痛！');
+          say('你把手臂探进齿轮的缺口，用骨与肉替代那枚卡扣。齿轮碾着你转了半圈，孩子过去了。<br><span style="color:#ffb0b0">〔莱恩 −1 生命，痛苦值 +3〕</span>');
+          setChoices([{ label:'▼ 忍痛继续向下，回到塔底', on:()=>{ S.pos=0; endingFloor(); } }]);
+        }}
+    ]);
+  } else {
+    // 温柔：齿轮完好，轻推复位
+    say('工坊里那座齿轮<b style="color:#9ff0bd">完好无损</b>——是上一程的你，耐心给它浇了油。<br>你只需轻轻一推，它便顺滑复位。');
+    setChoices([
+      { cls:'kind',
+        label:'🤲 轻推齿轮复位，抱孩子无伤通过',
+        sub:'因为你当初没拆它',
+        on:()=>{
+          renderAll();
+          say('齿轮温顺地转动，托住了脚下的地板。你抱着孩子，毫发无损地走了过去。<br><span style="color:#9ff0bd">〔无伤通过，痛苦值 +0〕</span>');
+          setChoices([{ label:'▼ 继续向下，回到塔底', on:()=>{ S.pos=0; endingFloor(); } }]);
+        }}
+    ]);
+  }
+}
+
+// 塔底：结局
+function endingFloor(){
+  renderAll();
+  // 若中途生命耗尽 → 循环崩坏（本Demo仅一次扣血，保留失败分支示意）
+  if(S.ryanHp<=0){
+    return failCutscene();
+  }
+  say('<b class="who">莱恩：</b>到塔底了。那个要救的孩子，就是……');
+  setChoices([{ label:'👶 抱起小艾洛，送出塔外', on:()=> endingCutscene() }]);
+}
+
+/* ---------- 结局演出 ---------- */
+function endingCutscene(){
+  const c=document.getElementById('curtain');
+  const gentle = (S.pain===0);
+  c.className='show'+(gentle?' violet':'');
+  const lines = gentle
+    ? [
+        '你抱起小艾洛，走出塔门。全程，你没有流一滴血。',
+        '莱恩第一次<b style="color:#d8ccff">笑</b>了：<br>"别怕，很快就结束了。"',
+        '长明灯照亮全塔。伤痕墙，停止了增长。',
+        '循环没有被打破——<br>但这一次，你没让他受伤。',
+        '<span style="font-size:15px;color:#9ff0bd">〔真结局 · 痛苦值 0〕</span>',
+      ]
+    : [
+        '你抱起小艾洛，走出塔门。血，从莱恩残缺的手臂滴在雪地上。',
+        '孩子安全了。城市，又被封回了灾变前一天。',
+        '顶层的伤痕墙上，多了一道新的血迹。',
+        '"下次……"莱恩低声说，"试试别拆它。"',
+      ];
+  let idx=0;
+  const next=()=>{
+    if(idx<lines.length){
+      c.innerHTML='<div class="big">'+lines[idx]+'</div><div class="sub">（点击继续）</div>';
+      idx++;
+    }else{
+      c.classList.remove('show'); c.onclick=null; showResult(gentle);
+    }
+  };
+  c.onclick=next; next();
+}
+
+function failCutscene(){
+  const c=document.getElementById('curtain'); c.className='show';
+  c.innerHTML='<div class="big">莱恩耗尽了生命。循环崩坏，城市永久冻结在这一刻。<br>小艾洛，没能被救出去。</div><div class="sub">（点击重开新循环）</div>';
+  c.onclick=()=>{ c.classList.remove('show'); c.onclick=null; reset(); };
+}
+
+/* ---------- 结算面板 ---------- */
+function showResult(gentle){
+  S.phase='end'; renderAll(); clearChoices();
+  document.getElementById('result').classList.add('show');
+  document.getElementById('say').style.display='none';
+  document.getElementById('verdictText').innerHTML = gentle
+    ? '<span style="color:var(--green)">温柔通关 · 莱恩平静</span>'
+    : '<span style="color:var(--red)">粗暴通关 · 莱恩血肉模糊</span>';
+  document.getElementById('finalPain').textContent = S.pain;
+  document.getElementById('finalPain').style.color = gentle?'var(--green)':'var(--red)';
+  document.getElementById('verdictSub').innerHTML = gentle
+    ? '痛苦值归零 → 触发真结局。你第一次没让他流血。'
+    : '你上塔的破坏，变成了下塔自己身上的伤。重开一局，试试全程温柔解。';
+}
+function hideResult(){
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('say').style.display='';
+}
+
+/* ---------- 工具 ---------- */
+function toast(txt){
+  const t=document.getElementById('toast'); t.textContent=txt; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),700);
+}
+
+document.getElementById('restartBtn').onclick=reset;
+
+/* 启动 */
+reset();
+</script>
+</body>
+</html>
