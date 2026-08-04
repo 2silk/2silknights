@@ -825,6 +825,30 @@ body.reader-mode .menu-toggle {
   margin-top: 0;
 }
 
+.reader-subchapter,
+.reader-minor-heading {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  break-after: avoid;
+}
+
+.reader-subchapter {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 26px auto 12px;
+  padding-left: 14px;
+  border-left: 3px solid var(--border);
+}
+
+.reader-minor-heading {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 18px auto 8px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .chapter-label {
   display: inline-block;
   margin-right: 10px;
@@ -1088,6 +1112,13 @@ body.reader-mode .menu-toggle {
   color: var(--ink);
   border-left-color: var(--ink);
   font-weight: 600;
+}
+
+.toc-item.level-3 {
+  margin-left: 12px;
+  padding: 7px 12px;
+  font-size: 11px;
+  color: var(--ink-muted);
 }
 
 /* 目录中的藏头诗 */
@@ -1366,6 +1397,17 @@ body.reader-mode .menu-toggle {
     margin: 32px auto 16px;
     font-size: 17px;
     line-height: 1.6;
+  }
+
+  .reader-subchapter {
+    margin: 22px auto 10px;
+    font-size: 14px;
+    padding-left: 10px;
+  }
+
+  .reader-minor-heading {
+    margin: 14px auto 6px;
+    font-size: 12px;
   }
 
   .chapter-label {

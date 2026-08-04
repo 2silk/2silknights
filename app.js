@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chapters = [];
     const acrosticChars = [];
     let figureIndex = 0;
+    let headingIndex = 0;
 
     const categoryLabels = {
       fanworks: '同人作品',
@@ -305,12 +306,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderBlock(sec) {
       // ---------- heading 类型 ----------
       if (sec.type === 'heading') {
-        const h = document.createElement('h3');
-        h.className = 'reader-chapter';
-        h.id = `ch-${chapters.length}`;
+        const level = Number(sec.level) || 2;
+        const headingId = `ch-${headingIndex}`;
+        headingIndex += 1;
+        const tagName = level >= 4 ? 'h4' : level === 3 ? 'h3' : 'h2';
+        const h = document.createElement(tagName);
+        h.className = level >= 4 ? 'reader-minor-heading' : level === 3 ? 'reader-subchapter' : 'reader-chapter';
+        h.id = headingId;
         h.textContent = sec.text || '';
         article.appendChild(h);
-        chapters.push({ id: `ch-${chapters.length}`, label: sec.text || '', rest: '' });
+
+        const includeInToc = sec.toc !== false && level <= 3;
+        if (includeInToc) {
+          chapters.push({ id: headingId, label: sec.text || '', rest: '', level });
+        }
         return;
       }
 
@@ -334,7 +343,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const chapter = document.createElement('h2');
         chapter.className = 'reader-chapter';
-        chapter.id = `ch-${chapters.length}`;
+        const chapterId = `ch-${headingIndex}`;
+        headingIndex += 1;
+        chapter.id = chapterId;
 
         if (rest && label !== '番外') {
           const firstChar = rest.charAt(0);
@@ -354,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
         article.appendChild(chapter);
 
         // 添加到目录
-        chapters.push({ id: `ch-${chapters.length}`, label, rest });
+        chapters.push({ id: chapterId, label, rest, level: 2 });
         return;
       }
 
@@ -393,9 +404,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSections(sections);
 
     // 渲染目录
-    chapters.forEach((ch, idx) => {
+    chapters.forEach((ch) => {
       const item = document.createElement('div');
       item.className = 'toc-item';
+      if (ch.level) item.classList.add(`level-${ch.level}`);
       item.textContent = `${ch.label} ${ch.rest || ''}`.trim();
       item.addEventListener('click', () => {
         const el = document.getElementById(ch.id);
