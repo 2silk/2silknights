@@ -967,10 +967,10 @@ body.reader-mode .menu-toggle {
 }
 
 .reader-about {
-  margin: 22px auto 34px;
-  padding: 18px 0 20px;
-  border-top: 3px double var(--border);
-  border-bottom: 3px double var(--border);
+  margin: 16px auto 30px;
+  padding: 12px 0 18px;
+  border-top: none;
+  border-bottom: 1px solid var(--border-light);
   text-align: center;
   column-span: all;
 }
@@ -1384,8 +1384,8 @@ body.reader-mode .menu-toggle {
   }
 
   .reader-about {
-    margin: 16px auto 24px;
-    padding: 14px 0 16px;
+    margin: 12px auto 20px;
+    padding: 10px 0 14px;
   }
 
   .reader-about-text {
